@@ -3,11 +3,14 @@ package Server;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.io.*;
+import java.net.*;
 
 public class ServerMain {
     private static EntityManagerFactory emf;
     private static EntityManager em;
     private static EntityTransaction tx;
+
     public static void main(String[] args) {
         emf = Persistence.createEntityManagerFactory("hello");
 
@@ -16,18 +19,12 @@ public class ServerMain {
         tx.begin();
 
         try{
-            signUp("user1Id", "1234password","user1");
-            signUp("user2Id", "1234", "user2");
-            User nowUser1 = login("user1Id","1234password");
-            User nowUser2 = login("user2Id", "1234");
-            Chatroom Chatroom1 = makeBigChatroom(nowUser1.getUserRealId(),"Chatroom1");
-            makeSmallChatroom(nowUser1.getUserRealId(),"SmallRoom1", Chatroom1.getChatroomId());
-
-            sendMessage(nowUser2.getUserRealId(), Chatroom1.getChatroomId(), "Hi");
-            sendMessage(nowUser1.getUserRealId(), Chatroom1.getChatroomId(), "User1 Says Hi");
-            logout(nowUser1.getUserRealId());
-
-            tx.commit();
+            ServerSocket serverSocket = new ServerSocket(8080);
+            while (true) {
+                Socket socket = serverSocket.accept();
+                Thread task = new HandleSocketThread(socket);
+                task.start();
+            }
         }catch(Exception e){
             System.out.println("ERROR" + e);
             tx.rollback();
@@ -35,6 +32,29 @@ public class ServerMain {
             em.close();
         }
         emf.close();
+    }
+
+
+
+    private static class HandleSocketThread extends Thread {
+        private Socket socket;
+
+        HandleSocketThread(Socket socket){
+            this.socket = socket;
+        }
+
+        public void run(){
+            try {
+                InputStreamReader reader = new InputStreamReader(socket.getInputStream());
+                OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+            }catch(IOException e){
+                System.err.println(e);
+            }finally{
+                try{
+                    socket.close();
+                }catch(IOException e){}
+            }
+        }
     }
 
     public static void signUp(String Id,String password, String userName){
@@ -224,6 +244,5 @@ public class ServerMain {
         }catch (Exception e){
             System.out.println(e);
         }
-
     }
 }
