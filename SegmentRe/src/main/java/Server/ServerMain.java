@@ -5,11 +5,17 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.io.*;
 import java.net.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import org.json.JSONObject;
+
 
 public class ServerMain {
     private static EntityManagerFactory emf;
     private static EntityManager em;
     private static EntityTransaction tx;
+
+    private static ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     public static void main(String[] args) {
         emf = Persistence.createEntityManagerFactory("hello");
@@ -22,8 +28,7 @@ public class ServerMain {
             ServerSocket serverSocket = new ServerSocket(8080);
             while (true) {
                 Socket socket = serverSocket.accept();
-                Thread task = new HandleSocketThread(socket);
-                task.start();
+                threadPool.submit(new HandleSocketThread(socket));
             }
         }catch(Exception e){
             System.out.println("ERROR" + e);
@@ -45,8 +50,26 @@ public class ServerMain {
 
         public void run(){
             try {
-                InputStreamReader reader = new InputStreamReader(socket.getInputStream());
+                Reader reader = new InputStreamReader(socket.getInputStream()); //문자 -> Reader
+                BufferedReader bufferedReader = new BufferedReader(reader); // Line 단위로 읽기 위함
+
                 OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+
+                while (true){
+                    String data = bufferedReader.readLine();
+                    if (data.length() == 0){
+                        break;
+                    }
+
+                    JSONObject jsondata = new JSONObject(data);
+
+                }
+
+                bufferedReader.close();
+                reader.close();
+
+                writer.close();
+
             }catch(IOException e){
                 System.err.println(e);
             }finally{
