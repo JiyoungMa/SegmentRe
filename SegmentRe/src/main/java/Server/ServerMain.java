@@ -60,9 +60,11 @@ public class ServerMain {
                     if (data.length() == 0){
                         break;
                     }
+                    System.out.println(data);
 
                     JSONObject jsondata = new JSONObject(data);
 
+                    break;
                 }
 
                 bufferedReader.close();
