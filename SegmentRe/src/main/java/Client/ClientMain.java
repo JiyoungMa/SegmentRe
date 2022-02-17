@@ -8,44 +8,60 @@ import java.util.Scanner;
 import java.nio.charset.StandardCharsets;
 
 public class ClientMain {
-    private static InputStream input;
-    private static OutputStream output;
     private static Scanner scanner;
+    private static UserMethod userMethod;
 
     public static void main(String[] args) {
         scanner = new Scanner(System.in);
 
         Socket socket = null;
+        Status status = Status.NOTHING;
+        String myid = null;
 
         try{
             socket = new Socket();
             socket.connect(new InetSocketAddress(8080));
+            userMethod = new UserMethod(socket);
 
-            input = socket.getInputStream();
-            output = socket.getOutputStream();
+            while (true) {
+                if (status == Status.NOTHING) {
+                    System.out.println("------------------------------------");
+                    System.out.println("-----다음 중 원하는 기능을 고르시오-----");
+                    System.out.println("1. 회원가입 \n2.로그인\n3.로그아웃 및 종료 ");
 
-            System.out.println("------------------------------------");
-            System.out.println("-----다음 중 원하는 기능을 고르시오-----");
-            System.out.println("1. 회원가입 \n 2.로그인 \n 추 후 추가하기!");
+                    int menu = scanner.nextInt();
+                    scanner.nextLine(); //개행문자 제거
 
-            int menu = scanner.nextInt();
+                    switch (menu) {
+                        case 1:
+                            ServerResult signupResult = userMethod.signUp();
+                            if (signupResult.getResult() == true) {
+                                status = Status.SIGN_UP;
+                                myid = signupResult.getId();
+                                System.out.println("성공적으로 회원가입이 완료되었습니다");
+                            }else{
+                                System.out.println(signupResult.getError());
+                            }
+                            break;
+                        case 2:
+                            userMethod.login();
+                            status = Status.LOGIN;
+                            break;
+                        case 3:
+                            userMethod.logout();
+                            status = Status.LOGOUT;
+                            break;
+                        default:
+                            System.out.println("올바른 번호를 입력해주세요.");
+                            break;
+                    }
+                } else if (status == Status.SIGN_UP){
+                    System.out.println("------------------------------------");
+                    System.out.print("-----다음 중 원하는 기능을 고르시오-----");
+                    String answer = scanner.nextLine();
 
-            switch (menu){
-                case 1:
-                    signUp();
-                    break;
-                case 2:
-                    login();
-                    break;
-                default:
-                    break;
+                }
             }
-//            JSONObject jsondata = new JSONObject();
-//            jsondata.put("Method", "Login");
-//
-//            String data = jsondata.toString();
-
-//            output.write(data.getBytes(StandardCharsets.UTF_8));
         }catch(Exception e){
             e.printStackTrace();
         }finally {
@@ -58,42 +74,5 @@ public class ClientMain {
             }
         }
 
-    }
-
-    public static void signUp(){
-        //password 암호화 나중에 추가해보기
-        //While True 말고 비동기로 진행할수는 없을까?
-
-        System.out.println("------------------------------------");
-        System.out.print("사용하고 싶은 아이디를 입력하세요 : ");
-        String id = scanner.nextLine();
-
-        System.out.print("사용하고 싶은 비밀번호를 입력하세요 : ");
-        String password = scanner.nextLine();
-
-        System.out.print("사용하고 싶은 닉네임을 입력하세요 : ");
-        String username = scanner.nextLine();
-
-        JSONObject loginjson = new JSONObject();
-        loginjson.put("Method", "Login");
-
-        JSONObject datajson = new JSONObject();
-        datajson.put("Id", id);
-        datajson.put("password", password);
-        datajson.put("username", username);
-
-        loginjson.put("data", datajson);
-
-        String data = loginjson.toString();
-
-        try {
-            output.write(data.getBytes(StandardCharsets.UTF_8));
-        }catch(IOException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    private static void login() {
     }
 }

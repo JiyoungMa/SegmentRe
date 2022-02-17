@@ -1,6 +1,7 @@
 package Server;
 
 import javax.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.io.*;
@@ -27,8 +28,14 @@ public class ServerMain {
         try{
             ServerSocket serverSocket = new ServerSocket(8080);
             while (true) {
-                Socket socket = serverSocket.accept();
-                threadPool.submit(new HandleSocketThread(socket));
+                try {
+                    Socket socket = serverSocket.accept();
+                    System.out.println("클라이언트 1 입장");
+                    threadPool.execute(new HandleSocketThread(socket));
+
+                } catch (Exception e) {
+                    throw e;
+                }
             }
         }catch(Exception e){
             System.out.println("ERROR" + e);
@@ -41,28 +48,55 @@ public class ServerMain {
 
 
 
-    private static class HandleSocketThread extends Thread {
+    private static class HandleSocketThread implements Runnable {
         private Socket socket;
 
         HandleSocketThread(Socket socket){
             this.socket = socket;
         }
 
+        @Override
         public void run(){
+            System.out.println("In");
             try {
                 Reader reader = new InputStreamReader(socket.getInputStream()); //문자 -> Reader
                 BufferedReader bufferedReader = new BufferedReader(reader); // Line 단위로 읽기 위함
 
-                OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream());
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
                 while (true){
                     String data = bufferedReader.readLine();
                     if (data.length() == 0){
                         break;
                     }
-                    System.out.println(data);
+                    System.out.println("DATA :" +  data);
 
                     JSONObject jsondata = new JSONObject(data);
+                    String method = jsondata.get("Method").toString();
+
+                    JSONObject returndata = new JSONObject();
+
+                    try {
+                        switch (method) {
+                            case "SignUp":
+                                String signUpId = signUpJson(jsondata);
+                                returndata.append("Result", "Success");
+                                returndata.append("Id",signUpId);
+                                break;
+                            case "Login":
+                                String loginId = loginJson(jsondata);
+                                returndata.append("Result", "Success");
+                                returndata.append("Id",loginId);
+                                break;
+                        }
+                    }catch (Exception e){
+                        returndata.append("Result", "Fail");
+                        returndata.append("Error", e.getMessage());
+                    }finally {
+                        writer.write(returndata.toString());
+                        writer.newLine();
+                        writer.flush();
+                    }
 
                     break;
                 }
@@ -80,18 +114,33 @@ public class ServerMain {
                 }catch(IOException e){}
             }
         }
+
+        private String loginJson(JSONObject jsondata) {
+            JSONObject data = jsondata.getJSONObject("data");
+            return login(jsondata.getString("Id"), jsondata.getString("password"));
+        }
+
+        private String signUpJson(JSONObject jsondata) {
+            JSONObject data = jsondata.getJSONObject("data");
+            return signUp(data.getString("Id"),data.getString("password"), data.getString("username"));
+        }
     }
 
-    public static void signUp(String Id,String password, String userName){
+    public static String signUp(String Id,String password, String userName){
         User newUser = new User(Id, password, userName);
         em.persist(newUser);
+        return Id;
     }
 
-    public static User login(String id, String password){
+    public static String login(String id, String password){
         User findUser = em.find(User.class, id);
 
         try {
-            if (!findUser.getUserPassword().equals(password)) {
+            if (findUser == null){
+                Exception exception = new Exception("아이디에 해당하는 유저가 존재하지 않음");
+                throw exception;
+            }
+            else if (!findUser.getUserPassword().equals(password)) {
                 Exception exception = new Exception("비밀번호가 일치하지 않음");
                 throw exception;
             }
@@ -103,7 +152,7 @@ public class ServerMain {
             System.out.println(e);
             findUser = null;
         }finally{
-            return findUser;
+            return findUser.getUserRealId();
         }
     }
 
