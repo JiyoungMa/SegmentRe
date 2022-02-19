@@ -17,6 +17,8 @@ public class ClientMain {
         Socket socket = null;
         Status status = Status.NOTHING;
         String myid = null;
+        int bigroom = -1;
+        int smallromm = -1;
 
         try{
             socket = new Socket();
@@ -25,41 +27,29 @@ public class ClientMain {
 
             while (true) {
                 if (status == Status.NOTHING) {
+                    status = statusNothing(status);
+                } else if (status == Status.SIGN_UP){
+                    status = statusSignUp(status);
+                } else if (status == Status.LOGIN){
                     System.out.println("------------------------------------");
                     System.out.println("-----다음 중 원하는 기능을 고르시오-----");
-                    System.out.println("1. 회원가입 \n2.로그인\n3.로그아웃 및 종료 ");
-
+                    System.out.println("1.로그아웃\n2.큰 채팅방 입장");
                     int menu = scanner.nextInt();
                     scanner.nextLine(); //개행문자 제거
 
                     switch (menu) {
                         case 1:
-                            ServerResult signupResult = userMethod.signUp();
-                            if (signupResult.getResult() == true) {
-                                status = Status.SIGN_UP;
-                                myid = signupResult.getId();
-                                System.out.println("성공적으로 회원가입이 완료되었습니다");
-                            }else{
-                                System.out.println(signupResult.getError());
-                            }
-                            break;
-                        case 2:
-                            userMethod.login();
-                            status = Status.LOGIN;
-                            break;
-                        case 3:
                             userMethod.logout();
                             status = Status.LOGOUT;
+                            break;
+                        case 2:
+                            userMethod.enterBigChatRoom();
+                            status = Status.ENTER_BIG_ROOM;
                             break;
                         default:
                             System.out.println("올바른 번호를 입력해주세요.");
                             break;
                     }
-                } else if (status == Status.SIGN_UP){
-                    System.out.println("------------------------------------");
-                    System.out.print("-----다음 중 원하는 기능을 고르시오-----");
-                    String answer = scanner.nextLine();
-
                 }
             }
         }catch(Exception e){
@@ -74,5 +64,60 @@ public class ClientMain {
             }
         }
 
+    }
+
+    private static Status statusSignUp(Status status) {
+        String myid;
+        System.out.println("------------------------------------");
+        System.out.print("-----로그인을 진행합니다.-----");
+        ServerResult loginResult = userMethod.login();
+        if (loginResult.getResult() == true) {
+            status = Status.LOGIN;
+            myid = loginResult.getId();
+            System.out.println("성공적으로 로그인이 완료되었습니다.");
+        }else{
+            System.out.print("문제가 발생했습니다 : ");
+            System.out.println(loginResult.getError());
+        }
+        return status;
+    }
+
+    private static Status statusNothing(Status status) {
+        String myid;
+        System.out.println("------------------------------------");
+        System.out.println("-----다음 중 원하는 기능을 고르시오-----");
+        System.out.println("1. 회원가입 \n2.로그인");
+
+        int menu = scanner.nextInt();
+        scanner.nextLine(); //개행문자 제거
+
+        switch (menu) {
+            case 1:
+                ServerResult signupResult = userMethod.signUp();
+                if (signupResult.getResult() == true) {
+                    status = Status.SIGN_UP;
+                    myid = signupResult.getId();
+                    System.out.println("성공적으로 회원가입이 완료되었습니다");
+                }else{
+                    System.out.print("문제가 발생했습니다 : ");
+                    System.out.println(signupResult.getError());
+                }
+                break;
+            case 2:
+                ServerResult loginResult = userMethod.login();
+                if (loginResult.getResult() == true) {
+                    status = Status.LOGIN;
+                    myid = loginResult.getId();
+                    System.out.println("성공적으로 로그인이 완료되었습니다.");
+                }else{
+                    System.out.print("문제가 발생했습니다 : ");
+                    System.out.println(loginResult.getError());
+                }
+                break;
+            default:
+                System.out.println("올바른 번호를 입력해주세요.");
+                break;
+        }
+        return status;
     }
 }
