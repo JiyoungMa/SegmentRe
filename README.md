@@ -4,6 +4,7 @@
 
 - JPA를 사용
 - 추후 Spring도 사용해 볼 예정
+- **현재 JPA 연결은 완료, 각 기능 개발 중**
 
 <h3> ERD (변동 가능) </h3>
 <img src = "https://user-images.githubusercontent.com/50768959/141368760-227bc419-9537-4c9b-9333-d868f419cde9.png">
