@@ -1,13 +1,16 @@
 package Server;
 
 import javax.persistence.*;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import Server.Formats.EnterBigChatRoomFormat;
+import Server.Formats.EnterSmallChatRoomFormat;
+import Server.Formats.GetSmallRoomFormat;
 import org.json.JSONObject;
 
 
@@ -86,6 +89,7 @@ public class ServerMain {
         @Override
         public void run(){
             System.out.println("In");
+            getSmallRoomList("1",Long.valueOf(2));
             try {
                 emf = Persistence.createEntityManagerFactory("hello");
 
@@ -131,7 +135,7 @@ public class ServerMain {
                                 break;
                             case "GetBigRooms":
                                 List bigRooms = getBigRoomList();
-                                sendBigRoomList(bigRooms);
+                                sendRoomList(bigRooms,true);
                                 break;
                             case "Enter BigChatRoom":
                                 EnterBigChatRoomFormat bigChatRoomData = enterBigChatRoomJson(jsondata);
@@ -139,7 +143,13 @@ public class ServerMain {
                                 returndata.put("Id",bigChatRoomData.getId());
                                 returndata.put("BigChatRoomId",bigChatRoomData.getBigChatRoomId());
                                 break;
-
+                            case "GetSmallRooms":
+                                GetSmallRoomFormat smallRoomData = getSmallChatroomJson(jsondata);
+                                List smallRooms = getSmallRoomList(smallRoomData.getId(), smallRoomData.getBigroomId());
+                                sendRoomList(smallRooms,false);
+                                break;
+                            case "Enter SmallChatRoom":
+                                EnterSmallChatRoomFormat smallChatRoomFormat = enterSmallChatroomJson(jsondata);
                         }
                         tx.commit();
                     }catch (Exception e){
@@ -177,23 +187,33 @@ public class ServerMain {
             }
         }
 
+        private EnterSmallChatRoomFormat enterSmallChatroomJson(JSONObject jsondata) {
+            JSONObject data = jsondata.getJSONObject("data");
+            return new EnterSmallChatRoomFormat(data.getString("Id"), Long.valueOf(data.getInt("SmallRoomId")));
+        }
+
+        private GetSmallRoomFormat getSmallChatroomJson(JSONObject jsondata) {
+            JSONObject data = jsondata.getJSONObject("data");
+            return new GetSmallRoomFormat(data.getString("Id"), Long.valueOf(data.getInt("BigRoomId")));
+        }
+
         private EnterBigChatRoomFormat enterBigChatRoomJson(JSONObject jsondata) {
             JSONObject data = jsondata.getJSONObject("data");
             return enterBigChatroom(data.get("Id").toString(),Long.valueOf(data.getInt("BigChatRoomId")));
         }
 
-        private void sendBigRoomList(List<Chatroom> bigRooms) throws Exception{
-            JSONObject bigRoomsJson = new JSONObject();
+        private void sendRoomList(List<Chatroom> rooms,boolean roomType) throws Exception{ //roomType true == big
+            JSONObject roomsJson = new JSONObject();
             JSONObject roomList = new JSONObject();
-            for (int i = 0; i<bigRooms.size();i++){
-                Chatroom nowRoom = bigRooms.get(i);
+            for (int i = 0; i<rooms.size();i++){
+                Chatroom nowRoom = rooms.get(i);
                 roomList.append("RoomId",Long.toString(nowRoom.getChatroomId()));
                 roomList.put(Long.toString(nowRoom.getChatroomId()),nowRoom.getChatroomName());
             }
-            bigRoomsJson.put("data",roomList);
-            bigRoomsJson.put("Result","Success");
+            roomsJson.put("data",roomList);
+            roomsJson.put("Result","Success");
 
-            writer.write(bigRoomsJson.toString());
+            writer.write(roomsJson.toString());
             writer.newLine();
             writer.flush();
         }
@@ -276,7 +296,9 @@ public class ServerMain {
         }
 
         public static List<Chatroom> getSmallRoomList(String userId, Long bigRoomId){
-            String jpql = "SELECT room FROM Chatroom room WHERE room.bigChatroom.chatroomId = :bigChatRoom";
+            String jpql = "SELECT room.chatroomUsers From Chatroom room WHERE room.bigChatroom.chatroomId = :bigChatRoom";
+            TypedQuery<User> userInRoom = em.createQuery(jpql, User.class);
+            jpql = "SELECT room FROM Chatroom room WHERE room.bigChatroom.chatroomId = :bigChatRoom";
             TypedQuery<Chatroom> query = em.createQuery(jpql, Chatroom.class);
             query.setParameter("bigChatRoom", bigRoomId);
 

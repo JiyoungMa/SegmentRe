@@ -1,4 +1,4 @@
-package Server;
+package Server.Formats;
 
 public class EnterBigChatRoomFormat {
     String id;

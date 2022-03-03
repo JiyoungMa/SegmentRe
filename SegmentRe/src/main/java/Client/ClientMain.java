@@ -43,7 +43,7 @@ public class ClientMain {
                             status = Status.LOGOUT;
                             break;
                         case 2:
-                            userMethod.enterBigChatRoom();
+                            userMethod.enterChatRoom(true);
                             status = Status.ENTER_BIG_ROOM;
                             break;
                         default:

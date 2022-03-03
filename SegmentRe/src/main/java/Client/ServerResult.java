@@ -5,6 +5,7 @@ public class ServerResult {
     String id;
     String error;
     int bigRoomId;
+    int smallRoomId;
 
     public ServerResult(){
 
@@ -49,6 +50,10 @@ public class ServerResult {
         return bigRoomId;
     }
 
+    public int getSmallRoomId() {
+        return smallRoomId;
+    }
+
     public void setId(String id){
         this.id = id;
     }
@@ -63,5 +68,9 @@ public class ServerResult {
 
     public void setBigRoomId(int bigRoomId) {
         this.bigRoomId = bigRoomId;
+    }
+
+    public void setSmallRoomId(int smallRoomId) {
+        this.smallRoomId = smallRoomId;
     }
 }

@@ -15,8 +15,9 @@ public class UserMethod {
     private static BufferedWriter output;
     private static Scanner scanner;
     private static Socket socket;
-    private static String myid = null;
-    private static int bigroom = -1;
+    private static String my_id = null;
+    private static int bigroom_id = -1;
+    private static int smallroom_id = -1;
 
     public UserMethod(Socket socket){
         scanner = new Scanner(System.in);
@@ -77,7 +78,7 @@ public class UserMethod {
 
         ServerResult serverResult= getServerResult(loginJson);
         if (serverResult.getResult() == true) {
-            myid = serverResult.getId();
+            my_id = serverResult.getId();
         }
         return serverResult;
     }
@@ -90,11 +91,17 @@ public class UserMethod {
             String result = results.get("Result").toString();
 
             if (result.equals("Success")){
+                serverResult.setResult(true);
+                serverResult.setId(results.get("Id").toString());
+
                 if (results.has("BigChatRoomId")){
-                    serverResult = new ServerResult(true,results.get("Id").toString(), Integer.parseInt(results.get("BigChatRoomId").toString()));
-                }else {
-                    serverResult = new ServerResult(true, results.get("Id").toString());
+                    serverResult.setBigRoomId(Integer.parseInt(results.get("BigChatRoomId").toString()));
                 }
+
+                if (results.has("SmallChatRoomId")){
+                    serverResult.setSmallRoomId(Integer.parseInt(results.get("SmallChatRoomId").toString()));
+                }
+
             }else{
                 serverResult = new ServerResult(false,results.get("Error").toString());
             }
@@ -134,42 +141,88 @@ public class UserMethod {
         return getServerResult(logoutJson);
     }
 
-    public ServerResult enterBigChatRoom() {
-        ServerResult serverResult = new ServerResult();
+    public Map<Integer,String> getChatRoom(boolean room){//true가 big
         JSONObject getRoomsJson = new JSONObject();
         Map<Integer,String> bigrooms = new HashMap<>();
-        getRoomsJson.put("Method", "GetBigRooms");
-        try{
+        try {
+            if(room){
+                getRoomsJson.put("Method","GetBigRooms");
+            }else{
+                getRoomsJson.put("Method","GetSmallRooms");
+                JSONObject data = new JSONObject();
+                data.put("Id", my_id);
+                data.put("BigRoomId",bigroom_id);
+                getRoomsJson.put("data",data);
+            }
             sendMessageToServer(getRoomsJson);
             JSONObject bigRooms = getMessageFromServer();
-            if (bigRooms.get("Result").toString().equals("Success")){
+            if (bigRooms.get("Result").toString().equals("Success")) {
                 System.out.println("------------------------------------");
-                System.out.println("<큰 채팅방 목록>");
+                if(room){
+                    System.out.println("<큰 채팅방 목록>");
+                }else{
+                    System.out.println("<작은 채팅방 목록>");
+                }
                 JSONObject roomList = bigRooms.getJSONObject("data");
                 List roomIds = roomList.getJSONArray("RoomId").toList();
-                for(int i = 0; i<roomIds.size();i++){
+                for (int i = 0; i < roomIds.size(); i++) {
                     String now_room = roomIds.get(i).toString();
                     String roomName = roomList.get(now_room).toString();
-                    bigrooms.put(Integer.getInteger(now_room),roomName);
-                    System.out.format("번호 : %s  이름 : %s\n",now_room,roomName);
+                    bigrooms.put(Integer.getInteger(now_room), roomName);
+                    System.out.format("번호 : %s  이름 : %s\n", now_room, roomName);
                 }
-                System.out.println("------------------------------------");
-                System.out.print("입장할 채팅방의 번호를 입력하세요 : ");
-                int roomId = scanner.nextInt();
-                scanner.nextLine();
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }finally{
+            return bigrooms;
+        }
+    }
 
-                JSONObject bigRoomJson = new JSONObject();
-                bigRoomJson.put("Method","Enter BigChatRoom");
+    public ServerResult enterChatRoom(boolean room) {
+        ServerResult serverResult = new ServerResult();
+        try{
+            Map<Integer, String> rooms = getChatRoom(room);
+            if (!rooms.isEmpty()){
+                int roomId = -1;
+                while(true) {
+                    System.out.println("------------------------------------");
+                    System.out.print("입장할 채팅방의 번호를 입력하세요 : ");
+                    roomId = scanner.nextInt();
+                    scanner.nextLine();
+                    if (rooms.get(roomId) != null){
+                        break;
+                    }else{
+                        System.out.println("존재하는 채팅방의 번호를 입력하세요");
+                    }
+                }
 
-                JSONObject data = new JSONObject();
-                data.put("Id", myid);
-                data.put("BigChatRoomId", roomId);
+                JSONObject roomJson = new JSONObject();
+                if(room) {
+                    roomJson.put("Method", "Enter BigChatRoom");
 
-                bigRoomJson.put("data",data);
+                    JSONObject data = new JSONObject();
+                    data.put("Id", my_id);
+                    data.put("BigChatRoomId", roomId);
 
-                serverResult = getServerResult(bigRoomJson);
+                    roomJson.put("data", data);
+                }
+                else{
+                    roomJson.put("Method", "Enter SmallChatRoom");
+
+                    JSONObject data = new JSONObject();
+                    data.put("Id", my_id);
+                    data.put("SmallChatRoomId", roomId);
+
+                    roomJson.put("data", data);
+                }
+                serverResult = getServerResult(roomJson);
                 if (serverResult.getResult() == true) {
-                    bigroom = serverResult.getBigRoomId();
+                    if(room) {
+                        bigroom_id = serverResult.getBigRoomId();
+                    }else{
+                        smallroom_id = serverResult.getSmallRoomId();
+                    }
                 }
             }
         }catch(Exception e) {
@@ -178,6 +231,5 @@ public class UserMethod {
         }finally {
             return serverResult;
         }
-
     }
 }
