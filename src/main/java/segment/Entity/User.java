@@ -1,4 +1,4 @@
-package Server;
+package segment.Entity;
 
 import javax.persistence.*;
 import java.util.ArrayList;

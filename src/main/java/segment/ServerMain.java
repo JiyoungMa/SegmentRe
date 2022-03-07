@@ -1,4 +1,4 @@
-package Server;
+package segment;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,6 +12,7 @@ import Server.Formats.EnterBigChatRoomFormat;
 import Server.Formats.EnterSmallChatRoomFormat;
 import Server.Formats.GetSmallRoomFormat;
 import org.json.JSONObject;
+import segment.Entity.*;
 
 
 public class ServerMain {

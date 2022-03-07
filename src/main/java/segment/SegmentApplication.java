@@ -1,4 +1,4 @@
-package com.segment.segment;
+package segment;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
