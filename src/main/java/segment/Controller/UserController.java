@@ -17,6 +17,6 @@ public class UserController {
     public String getSignUpForm(Model model){
         model.addAttribute("userSignUpForm", new UserSignUpForm());
 
-        return "users/signup";
+        return "users/createSignUpForm";
     }
 }
