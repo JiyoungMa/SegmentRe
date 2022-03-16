@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web
                 .ignoring()
                 .antMatchers(
-                        "/", "/users/signup"
+                        "/", "/users/signup/**"
                 );
     }
 
@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/").permitAll()
-                .antMatchers("/users/signup").permitAll()
+                .antMatchers("/users/signup/**").permitAll()
                 .anyRequest().authenticated();
 
     }

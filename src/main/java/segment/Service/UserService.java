@@ -1,8 +1,10 @@
 package segment.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import segment.Configuration.SecurityConfig;
 import segment.Entity.User;
 import segment.Repository.UserRepository;
 
@@ -11,19 +13,26 @@ import segment.Repository.UserRepository;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final SecurityConfig securityConfig;
 
     @Transactional
     public String signUp(User user){
+        user.setUserPassword(getEncodedPassword(user.getUserPassword()));
         userRepository.save(user);
         return user.getUserRealId();
     }
 
-    public boolean checkUserIdDuplicate(User user){
-        User findUser = userRepository.findOne(user.getUserRealId());
+    private String getEncodedPassword(String password){
+        PasswordEncoder passwordEncoder = securityConfig.getPasswordEncoder();
+        return passwordEncoder.encode(password);
+    }
+
+    public boolean checkUserIdDuplicate(String id){
+        User findUser = userRepository.findOne(id);
         if (findUser != null){
-            return false; //겹치지 않음
+            return true; //존재함
         }else{
-            return true; //겹침
+            return false; //존재안함
        }
     }
 }
