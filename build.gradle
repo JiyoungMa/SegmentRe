@@ -33,6 +33,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'org.json:json:20211205'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 
 }
 

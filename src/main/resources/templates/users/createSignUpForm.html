@@ -9,7 +9,7 @@
 <body>
 
 <script type="text/javascript">
-    function id_check_button(id) {
+    function id_check_button() {
 
         const url = `http://localhost:8080/users/signup/checkDuplicationId`;
         const options = {
@@ -18,7 +18,7 @@
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "id" : id
+                "id" : document.getElementById("textbox_id").value
             }),
         };
 
