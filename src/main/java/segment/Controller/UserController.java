@@ -1,22 +1,19 @@
 package segment.Controller;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.bridge.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import segment.Controller.Form.UserLoginForm;
 import segment.Controller.Form.UserSignUpForm;
 import segment.Entity.User;
-import segment.Exception.CustomErrorController;
 import segment.Service.UserService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 
 @Controller
 @RequiredArgsConstructor
@@ -56,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/users/login")
-    public String userLogin(@Valid UserLoginForm form, BindingResult result, RedirectAttributes redirAttrs){
+    public String userLogin(@Valid UserLoginForm form, BindingResult result, RedirectAttributes redirAttrs, Model model){
         if(result.hasErrors()){
             return "users/createLoginForm";
         }
@@ -65,13 +62,7 @@ public class UserController {
         user.setUserRealId(form.getId());
         user.setUserPassword(form.getPassword());
 
-        try{
-            userService.login(user);
-            return "redirect:/";
-        }catch(Exception e){
-            redirAttrs.addFlashAttribute("error", e.getMessage());
-            return "redirect:/users/login";
-        }
-
+        userService.login(user);
+        return "redirect:/";
     }
 }

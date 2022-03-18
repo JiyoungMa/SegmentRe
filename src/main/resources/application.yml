@@ -21,3 +21,9 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+server:
+  error:
+    include-exception: true
+    include-stacktrace: always
+    whitelabel:
+      enabled: false

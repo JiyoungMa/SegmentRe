@@ -39,7 +39,7 @@ public class UserService {
        }
     }
 
-    public boolean login(User user){
+    public boolean login(User user) throws Exception{
         User findUser = userRepository.findOne(user.getUserRealId());
 
         if (findUser == null){
