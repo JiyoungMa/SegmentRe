@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import segment.Entity.Chatroom;
 import segment.Entity.ChatroomType;
-import segment.Entity.User;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ChatroomRepository {
 
-    private static EntityManager em;
+    private final EntityManager em;
 
     public void save(Chatroom chatroom){
         em.persist(chatroom);

@@ -1,7 +1,6 @@
 package segment.Controller;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.bridge.Message;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +19,6 @@ import javax.validation.Valid;
 public class UserController {
 
     private final UserService userService;
-    private final CustomErrorController errorController;
 
     @GetMapping("/users/signup")
     public String getSignUpForm(Model model){
@@ -61,6 +59,8 @@ public class UserController {
         User user = new User();
         user.setUserRealId(form.getId());
         user.setUserPassword(form.getPassword());
+
+        redirAttrs.addAttribute("userId", user.getUserRealId());
 
         userService.login(user);
         return "redirect:/";

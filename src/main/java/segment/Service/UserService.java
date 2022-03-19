@@ -1,6 +1,9 @@
 package segment.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +14,12 @@ import segment.Exception.PasswordNotMatched;
 import segment.Exception.UserNotExist;
 import segment.Repository.UserRepository;
 
+import java.util.ArrayList;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService{
     private final UserRepository userRepository;
     private final SecurityConfig securityConfig;
 
@@ -39,7 +44,7 @@ public class UserService {
        }
     }
 
-    public boolean login(User user) throws Exception{
+    public boolean login(User user){
         User findUser = userRepository.findOne(user.getUserRealId());
 
         if (findUser == null){
@@ -60,5 +65,15 @@ public class UserService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User findUser = userRepository.findOne(username);
+
+        if(findUser == null)
+            throw new UsernameNotFoundException(username);
+
+        return new org.springframework.security.core.userdetails.User(findUser.getUserRealId(), findUser.getUserPassword(), true,true,true,true,new ArrayList<>());
     }
 }

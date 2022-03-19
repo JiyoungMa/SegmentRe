@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<body>
+
+<script type="text/javascript">
+    function go_into_bigroom(value){
+
+    }
+</script>
+
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader" />
+    <div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>큰 채팅방 목록</th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="bigchatroom : ${bigchatrooms}">
+                <div>
+                <td th:text="${bigchatroom.chatroomName}"></td>
+                <button class="btn btn-secondary"  th:value="${bigchatroom.chatroomId}" th:text="${bigchatroom.chatroomName}" th:onclick="|location.href='@{/bigchatroom/{id} (id=${bigchatroom.chatroomId})}'|" ></button>
+                </div>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="fragments/footer :: footer" />
+
+</div> <!-- /container -->
+
+</body>
+</html>

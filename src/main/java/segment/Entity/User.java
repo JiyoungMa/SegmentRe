@@ -13,6 +13,9 @@ public class User {
     private String userName;
 
     @Enumerated(EnumType.STRING)
+    private UserAuth auth = UserAuth.USER;
+
+    @Enumerated(EnumType.STRING)
     private UserStatus userStatus = UserStatus.Offline;
 
     @OneToMany(mappedBy = "user")
@@ -65,5 +68,9 @@ public class User {
 
     public void setUserChatrooms(List<Chatroom_User> chatrooms) {
         this.userChatrooms = chatrooms;
+    }
+
+    public UserAuth getAuth() {
+        return auth;
     }
 }

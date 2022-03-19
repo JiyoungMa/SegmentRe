@@ -27,14 +27,14 @@ public class ChatroomUserRepository {
 
     public List<Chatroom> findByUser(User user){
         return em.createQuery("Select cu.chatroom from Chatroom_User cu where cu.user = :user")
-                .setParameter("user",user)
+                .setParameter("user", user)
                 .getResultList();
     }
 
     public boolean CheckUserInRoom(Chatroom chatroom, User user){
         List<Chatroom_User> chatroomUserList = em.createQuery("select cu from Chatroom_User cu where cu.chatroom = :chatroom and cu.user = :user")
                 .setParameter("chatroom",chatroom)
-                .setParameter("user",user)
+                .setParameter("user", user)
                 .getResultList();
 
         if (chatroomUserList.size() == 0){

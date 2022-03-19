@@ -21,8 +21,13 @@
             <a class="btn btn-lg btn-secondary" href="/users/login">로그인</a>
         </p>
 
-    </div>
+        <p class="lead">채팅방 기능</p>
+        <p>
+            <a class="btn btn-lg btn-secondary" href="/chats/bigchatroomlist">큰 채팅방 목록보기</a>
+        </p>
 
+    </div>
+    <label id = "user_id" th:value="*{userId}" th:for="street" th:text="*{userId}"></label>
     <div th:replace="fragments/footer :: footer" />
 
 </div> <!-- /container -->
