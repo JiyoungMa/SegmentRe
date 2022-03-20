@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<body>
+
+<script type="text/javascript">
+    function sendMessages() {
+
+        const url = "http://localhost:8080/bigchatroom/sendMessage";
+        const url_split = document.URL.split('/');
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "message" : document.getElementById("message_box").value,
+                "chatroomId" : url_split[url_split.length-1],
+                "userId" : document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('userId'))
+                    .split('=')[1]
+            }),
+        };
+
+        fetch(url, options)
+            .then(response => {
+                response.json();
+            });
+
+        let today = new Date();
+
+        let year = today.getFullYear();
+
+        let month = today.getMonth() + 1;
+
+        let date = today.getDate();
+
+        var div = document.getElementById('message_div');
+
+        div.innerHTML += "<p>Me</p>" + "<p>"+document.getElementById("message_box").value+"</p>"+"<p>"+year + '-' + month + '-' + date+"</p>";
+        div.style.border = "1px dashed";
+
+    }
+
+    function refreshChat(){
+
+    }
+</script>
+
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+
+    <div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <td id = "chatroomname_text" th:text="${bigchatroom.chatroomName}"></td>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="chat : ${chats}">
+                <div style="border:1px solid;">
+                    <span th:text="${chat.getUser().getUserName()}"></span>
+                    <br/><br/>
+                    <span th:text="${chat.getMessage()}"></span>
+                    <br/><br/>
+                    <span th:text="${chat.getChatTime()}"></span>
+                    <br/><br/>
+                </div>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+    <div id="message_div">
+
+    </div>
+    <div>
+        <div class="form-group">
+            <label>메세지 입력창</label>
+            <input id = "message_box" type="text" class="form-control" placeholder="메세지를 입력하세요">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="sendMessages()">Send</button>
+
+    </div>
+    <button type="button" class="btn btn-primary" onclick="refreshChat()">getNewMessage(Refresh)</button>
+    <button class="btn btn-secondary" th:onclick="|location.href='@{/bigchatroom/{id}/exit (id=${bigchatroom.chatroomId})}'|" >Exit</button>
+
+    <div th:replace="fragments/footer :: footer" />
+
+</div> <!-- /container -->
+
+</body>
+</html>

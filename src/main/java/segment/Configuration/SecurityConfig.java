@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         web
                 .ignoring()
                 .antMatchers(
-                        "/", "/users/signup/**","/users/login","/error"
+                        "/", "/users/signup/**","/users/login","/error","/chats/bigchatroomlist","/bigchatroom/**"
                 );
     }
 
@@ -36,6 +36,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/signup/**").permitAll()
                 .antMatchers("/users/login").permitAll()
                 .antMatchers("/error").permitAll()
+                .antMatchers("/chats/bigchatroomlist").permitAll()
+                .antMatchers("/bigchatroom/**").permitAll()
                 .anyRequest().authenticated();
 
     }

@@ -11,7 +11,7 @@ import segment.Configuration.SecurityConfig;
 import segment.Entity.User;
 import segment.Exception.ErrorCode;
 import segment.Exception.PasswordNotMatched;
-import segment.Exception.UserNotExist;
+import segment.Exception.ResourceNotExist;
 import segment.Repository.UserRepository;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService{
         User findUser = userRepository.findOne(user.getUserRealId());
 
         if (findUser == null){
-            throw new UserNotExist("해당 아이디를 가진 유저는 존재하지 않습니다.", ErrorCode.NOT_FOUND);
+            throw new ResourceNotExist("해당 아이디를 가진 유저는 존재하지 않습니다.", ErrorCode.NOT_FOUND);
         }
         boolean passwordResult = checkPassword(findUser, user.getUserPassword());
 

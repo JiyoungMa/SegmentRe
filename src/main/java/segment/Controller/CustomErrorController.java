@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import segment.Exception.CustomException;
 import segment.Exception.ErrorCode;
 import segment.Exception.PasswordNotMatched;
-import segment.Exception.UserNotExist;
+import segment.Exception.ResourceNotExist;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
 @ControllerAdvice
 public class CustomErrorController implements ErrorController {
 
-    @ExceptionHandler({UserNotExist.class, PasswordNotMatched.class})
+    @ExceptionHandler({ResourceNotExist.class, PasswordNotMatched.class})
     public ResponseEntity<Map<String,String>> exceptionHandler(CustomException e){
         ErrorCode errorCode = e.getErrorCode();
 

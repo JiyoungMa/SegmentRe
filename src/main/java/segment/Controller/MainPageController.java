@@ -13,11 +13,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Slf4j
 public class MainPageController {
 
-    @GetMapping("/")
-    public String mainPage(Model model, RedirectAttributes redirectAttributes){
+    @RequestMapping("/")
+    public String mainPage(Model model){
         //log.info("mainpage controller");
-        Object userId = redirectAttributes.getAttribute("userId");
-        model.addAttribute("userId", null);
+        model.addAttribute("userId", model.getAttribute("userId"));
         return "mainpage";
     }
 }

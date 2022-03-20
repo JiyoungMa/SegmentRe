@@ -12,6 +12,8 @@ import segment.Controller.Form.UserSignUpForm;
 import segment.Entity.User;
 import segment.Service.UserService;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 @Controller
@@ -51,7 +53,7 @@ public class UserController {
     }
 
     @PostMapping("/users/login")
-    public String userLogin(@Valid UserLoginForm form, BindingResult result, RedirectAttributes redirAttrs, Model model){
+    public String userLogin(@Valid UserLoginForm form, BindingResult result, RedirectAttributes redirAttrs, Model model, HttpServletResponse response){
         if(result.hasErrors()){
             return "users/createLoginForm";
         }
@@ -60,9 +62,17 @@ public class UserController {
         user.setUserRealId(form.getId());
         user.setUserPassword(form.getPassword());
 
-        redirAttrs.addAttribute("userId", user.getUserRealId());
+        redirAttrs.addFlashAttribute("userId", user.getUserRealId());
 
-        userService.login(user);
+        try {
+            userService.login(user);
+        }catch(Exception e){
+            return "users/createLoginForm";
+        }
+
+        Cookie idCookie = new Cookie("userId", String.valueOf(user.getUserRealId()));
+        idCookie.setPath("/");
+        response.addCookie(idCookie);
         return "redirect:/";
     }
 }

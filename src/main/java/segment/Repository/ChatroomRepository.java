@@ -30,4 +30,8 @@ public class ChatroomRepository {
                 .getResultList();
     }
 
+    public Chatroom findOne(Long chatroomId){
+        return em.find(Chatroom.class, chatroomId);
+    }
+
 }
