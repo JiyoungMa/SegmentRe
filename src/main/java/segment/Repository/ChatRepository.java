@@ -15,19 +15,20 @@ public class ChatRepository {
 
     private final EntityManager em;
 
-    public void save(Chat chat){
+    public Long save(Chat chat){
         em.persist(chat);
+        return chat.getChatId();
     }
 
     public List<Chat> getAllChatsByChatroom(Chatroom chatroom){
-        return em.createQuery("select c from Chat c where c.chatroom = :chatroom")
+        return em.createQuery("select c from Chat c join fetch c.user u join fetch c.chatroom where c.chatroom = :chatroom")
                 .setParameter("chatroom",chatroom)
                 .getResultList();
     }
 
-    public List<Chat> getChatsAfterTime(Chatroom chatroom, LocalDateTime dateTime){
-        return em.createQuery("select c from Chat c where c.chatroom = :chatroom and c.chatTime > :dateTime")
-                .setParameter("chatroom",chatroom).setParameter("dateTime",dateTime)
+    public List<Chat> getChatsAfterTime(Chatroom chatroom, Long messageId){
+        return em.createQuery("select c from Chat c join fetch c.user u join fetch c.chatroom where c.chatroom = :chatroom and c.chatId > :messageId")
+                .setParameter("chatroom",chatroom).setParameter("messageId",messageId)
                 .getResultList();
     }
 }

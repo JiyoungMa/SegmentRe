@@ -3,9 +3,22 @@
 <head th:replace="fragments/header :: header" />
 <body>
 
-<script type="text/javascript">
-    function sendMessages() {
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    let chats = [[ ${chats} ]];
+    /*]]*/
 
+    let recentMessageId = -1;
+
+    if (chats.length > 0){
+        recentMessageId = chats[chats.length-1]["chatId"];
+    }
+
+    refreshChat();
+    let timerId = setInterval(refreshChat,1000);
+
+
+    function sendMessages() {
         const url = "http://localhost:8080/bigchatroom/sendMessage";
         const url_split = document.URL.split('/');
         const options = {
@@ -23,28 +36,54 @@
             }),
         };
 
+        let messageTime = null;
+
         fetch(url, options)
-            .then(response => {
-                response.json();
+            .then(response =>response.json())
+            .then((data) => {
+                recentMessageId = data["messageId"];
+                messageTime = data["messageTime"];
+                console.log(messageTime);
+                console.log(data);
+
+                let div = document.getElementById('message_div');
+                document.getElementById('message_box').value = "";
+
+                div.innerHTML += "<div style=\"border:1px dotted;\"><p>Me</p>" + "<p>"+document.getElementById("message_box").value+"</p>"+"<p>"+messageTime+"</p></div>";
             });
-
-        let today = new Date();
-
-        let year = today.getFullYear();
-
-        let month = today.getMonth() + 1;
-
-        let date = today.getDate();
-
-        var div = document.getElementById('message_div');
-
-        div.innerHTML += "<p>Me</p>" + "<p>"+document.getElementById("message_box").value+"</p>"+"<p>"+year + '-' + month + '-' + date+"</p>";
-        div.style.border = "1px dashed";
 
     }
 
     function refreshChat(){
+        const url = "http://localhost:8080/bigchatroom/getNewMessage";
+        const url_split = document.URL.split('/');
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "messageId" : recentMessageId,
+                "chatroomId" : url_split[url_split.length-1],
+                "userId" : document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('userId'))
+                    .split('=')[1]
+            }),
+        };
 
+        fetch(url, options)
+            .then(response =>response.json())
+            .then((data) => {
+                let div = document.getElementById('message_div');
+                console.log(data);
+                for (let d in data){
+                    let chat_data = data[d];
+                    console.log(chat_data)
+                    div.innerHTML += "<div style=\"border:1px solid;\"><p>"+chat_data["username"]+"</p>" + "<p>"+chat_data["message"]+"</p>"+"<p>"+chat_data["chatTime"]+"</p></div>";
+                }
+                recentMessageId = data[data.length-1]["chatId"];
+            });
     }
 </script>
 
@@ -61,7 +100,7 @@
             <tbody>
             <th:block th:each="chat : ${chats}">
                 <div style="border:1px solid;">
-                    <span th:text="${chat.getUser().getUserName()}"></span>
+                    <span th:text="${chat.getUsername()}"></span>
                     <br/><br/>
                     <span th:text="${chat.getMessage()}"></span>
                     <br/><br/>
@@ -83,7 +122,6 @@
         <button type="button" class="btn btn-primary" onclick="sendMessages()">Send</button>
 
     </div>
-    <button type="button" class="btn btn-primary" onclick="refreshChat()">getNewMessage(Refresh)</button>
     <button class="btn btn-secondary" th:onclick="|location.href='@{/bigchatroom/{id}/exit (id=${bigchatroom.chatroomId})}'|" >Exit</button>
 
     <div th:replace="fragments/footer :: footer" />

@@ -26,7 +26,7 @@ public class ChatService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void sendChats(String userId, Long chatroomId, String message){
+    public Chat sendChats(String userId, Long chatroomId, String message){
         Chatroom findroom = chatroomRepository.findOne(chatroomId);
         if (findroom == null){
             throw new ResourceNotExist("해당 채팅방은 존재하지 않습니다", ErrorCode.NOT_FOUND);
@@ -44,14 +44,17 @@ public class ChatService {
         chat.setChatTime(LocalDateTime.now());
 
         chatRepository.save(chat);
+
+        return chat;
+
     }
 
     public List<Chat> getAllChats(Chatroom chatroom){
         return chatRepository.getAllChatsByChatroom(chatroom);
     }
 
-    public List<Chat> getNewChats(Long chatroomid, LocalDateTime dateTime){
+    public List<Chat> getNewChats(Long chatroomid, Long messageId){
         Chatroom chatroom = chatroomRepository.findOne(chatroomid);
-        return chatRepository.getChatsAfterTime(chatroom, dateTime);
+        return chatRepository.getChatsAfterTime(chatroom, messageId);
     }
 }
