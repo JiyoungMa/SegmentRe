@@ -8,16 +8,16 @@
     <div>
         <table class="table table-striped">
             <thead>
-            <tr>
-                <th>#</th>
-                <th>큰 채팅방 목록</th>
-            </tr>
+                <tr>
+                    <th>큰 채팅방 목록</th>
+                </tr>
             </thead>
+
             <tbody>
             <th:block th:each="bigchatroom : ${bigchatrooms}">
-                <div>
+                <td>
                     <button class="btn btn-secondary"  th:value="${bigchatroom.chatroomId}" th:text="${bigchatroom.chatroomName}" th:onclick="|location.href='@{/bigchatroom/{id} (id=${bigchatroom.chatroomId})}'|" ></button>
-                </div>
+                </td>
             </th:block>
             </tbody>
         </table>

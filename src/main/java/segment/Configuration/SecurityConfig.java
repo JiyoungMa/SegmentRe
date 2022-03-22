@@ -20,12 +20,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+
     @Override
     public void configure(WebSecurity web) {
         web
                 .ignoring()
                 .antMatchers(
-                        "/", "/users/signup/**","/users/login","/error","/chats/bigchatroomlist","/bigchatroom/**"
+                        "/**","/css/**", "/js/**", "/img/**","/bootstraps/**"
                 );
     }
 

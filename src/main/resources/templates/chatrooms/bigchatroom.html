@@ -17,6 +17,10 @@
     refreshChat();
     let timerId = setInterval(refreshChat,1000);
 
+    function stopTimer(){
+        clearInterval(timerId);
+    }
+
 
     function sendMessages() {
         const url = "http://localhost:8080/bigchatroom/sendMessage";
@@ -45,11 +49,12 @@
                 messageTime = data["messageTime"];
                 console.log(messageTime);
                 console.log(data);
+                let message = document.getElementById("message_box").value
 
                 let div = document.getElementById('message_div');
                 document.getElementById('message_box').value = "";
 
-                div.innerHTML += "<div style=\"border:1px dotted;\"><p>Me</p>" + "<p>"+document.getElementById("message_box").value+"</p>"+"<p>"+messageTime+"</p></div>";
+                div.innerHTML += "<div style=\"border:1px dotted;\"><p>Me</p>" + "<p>"+message+"</p>"+"<p>"+messageTime+"</p></div>";
             });
 
     }
@@ -82,7 +87,9 @@
                     console.log(chat_data)
                     div.innerHTML += "<div style=\"border:1px solid;\"><p>"+chat_data["username"]+"</p>" + "<p>"+chat_data["message"]+"</p>"+"<p>"+chat_data["chatTime"]+"</p></div>";
                 }
-                recentMessageId = data[data.length-1]["chatId"];
+                if (data.length > 0 ) {
+                    recentMessageId = data[data.length - 1]["chatId"];
+                }
             });
     }
 </script>
@@ -91,25 +98,26 @@
     <div th:replace="fragments/bodyHeader :: bodyHeader"/>
 
     <div>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <td id = "chatroomname_text" th:text="${bigchatroom.chatroomName}"></td>
-            </tr>
-            </thead>
-            <tbody>
-            <th:block th:each="chat : ${chats}">
-                <div style="border:1px solid;">
-                    <span th:text="${chat.getUsername()}"></span>
-                    <br/><br/>
-                    <span th:text="${chat.getMessage()}"></span>
-                    <br/><br/>
-                    <span th:text="${chat.getChatTime()}"></span>
-                    <br/><br/>
-                </div>
-            </th:block>
-            </tbody>
-        </table>
+            <div>
+                <tr>
+                    <td id = "chatroomname_text" th:text="${bigchatroom.chatroomName}"></td>
+                </tr>
+            </div>
+        
+            <div>
+                <tbody>
+                <th:block th:each="chat : ${chats}">
+                    <div style="border:1px solid;">
+                        <span th:text="${chat.getUsername()}"></span>
+                        <br/><br/>
+                        <span th:text="${chat.getMessage()}"></span>
+                        <br/><br/>
+                        <span th:text="${chat.getChatTime()}"></span>
+                        <br/><br/>
+                    </div>
+                </th:block>
+                </tbody>
+            </div>
     </div>
     <div id="message_div">
 
@@ -120,7 +128,7 @@
             <input id = "message_box" type="text" class="form-control" placeholder="메세지를 입력하세요">
         </div>
         <button type="button" class="btn btn-primary" onclick="sendMessages()">Send</button>
-
+        <button class="btn btn-secondary" onclick="stopTimer()">Stop Refreshing Chat</button>
     </div>
     <button class="btn btn-secondary" th:onclick="|location.href='@{/bigchatroom/{id}/exit (id=${bigchatroom.chatroomId})}'|" >Exit</button>
 
