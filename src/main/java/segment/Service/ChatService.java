@@ -11,10 +11,11 @@ import segment.Exception.ErrorCode;
 import segment.Exception.ResourceNotExist;
 import segment.Repository.ChatRepository;
 import segment.Repository.ChatroomRepository;
-import segment.Repository.UserRepository;
+import segment.Repository.UserJpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -23,7 +24,7 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
     private final ChatroomRepository chatroomRepository;
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
 
     @Transactional
     public Chat sendChats(String userId, Long chatroomId, String message){
@@ -32,14 +33,14 @@ public class ChatService {
             throw new ResourceNotExist("해당 채팅방은 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
-        User findUser = userRepository.findOne(userId);
-        if (findUser == null){
+        Optional<User> findUser = userJpaRepository.findOne(userId);
+        if (findUser.isEmpty()){
             throw new ResourceNotExist("해당 유저는 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
         Chat chat = new Chat();
         chat.setChatroom(findroom);
-        chat.setUser(findUser);
+        chat.setUser(findUser.get());
         chat.setMessage(message);
         chat.setChatTime(LocalDateTime.now());
 

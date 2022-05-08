@@ -10,7 +10,9 @@ import segment.Exception.ErrorCode;
 import segment.Exception.ResourceNotExist;
 import segment.Repository.ChatroomRepository;
 import segment.Repository.ChatroomUserRepository;
-import segment.Repository.UserRepository;
+import segment.Repository.UserJpaRepository;
+
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -19,7 +21,7 @@ public class ChatroomUserService {
 
     private final ChatroomUserRepository chatroomUserRepository;
     private final ChatroomRepository chatroomRepository;
-    private final UserRepository userRepository;
+    private final UserJpaRepository userJpaRepository;
 
     @Transactional
     public Chatroom_User enterBigChatRoom(Long chatroomId, String userId){
@@ -28,14 +30,14 @@ public class ChatroomUserService {
             throw new ResourceNotExist("해당 채팅방은 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
-        User findUser = userRepository.findOne(userId);
-        if (findUser == null){
+        Optional<User> findUser = userJpaRepository.findOne(userId);
+        if (findUser.isEmpty()){
             throw new ResourceNotExist("해당 유저는 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
         Chatroom_User chatroomUser = new Chatroom_User();
         chatroomUser.setChatroom(findroom);
-        chatroomUser.setUser(findUser);
+        chatroomUser.setUser(findUser.get());
         chatroomUserRepository.save(chatroomUser);
 
         return chatroomUser;
@@ -48,11 +50,11 @@ public class ChatroomUserService {
             throw new ResourceNotExist("해당 채팅방은 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
-        User findUser = userRepository.findOne(userId);
-        if (findUser == null){
+        Optional<User> findUser = userJpaRepository.findOne(userId);
+        if (findUser.isEmpty()){
             throw new ResourceNotExist("해당 유저는 존재하지 않습니다", ErrorCode.NOT_FOUND);
         }
 
-        chatroomUserRepository.delete(findroom,findUser);
+        chatroomUserRepository.delete(findroom,findUser.get());
     }
 }

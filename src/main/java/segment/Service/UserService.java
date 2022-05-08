@@ -15,6 +15,7 @@ import segment.Exception.ResourceNotExist;
 import segment.Repository.UserRepository;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,8 +37,8 @@ public class UserService implements UserDetailsService{
     }
 
     public boolean checkUserIdDuplicate(String id){
-        User findUser = userRepository.findOne(id);
-        if (findUser != null){
+        Optional<User> findUser = userRepository.findOne(id);
+        if (findUser.isPresent()){
             return true; //존재함
         }else{
             return false; //존재안함
@@ -45,12 +46,12 @@ public class UserService implements UserDetailsService{
     }
 
     public boolean login(User user){
-        User findUser = userRepository.findOne(user.getUserRealId());
+        Optional<User> findUser = userRepository.findOne(user.getUserRealId());
 
-        if (findUser == null){
+        if (findUser.isEmpty()){
             throw new ResourceNotExist("해당 아이디를 가진 유저는 존재하지 않습니다.", ErrorCode.NOT_FOUND);
         }
-        boolean passwordResult = checkPassword(findUser, user.getUserPassword());
+        boolean passwordResult = checkPassword(findUser.get(), user.getUserPassword());
 
         if (passwordResult == false){
             throw new PasswordNotMatched("아이디와 비밀번호가 일치하지 않습니다.", ErrorCode.PASSWORD_NOT_EXACT);
@@ -69,11 +70,12 @@ public class UserService implements UserDetailsService{
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User findUser = userRepository.findOne(username);
+        Optional<User> findResult = userRepository.findOne(username);
 
-        if(findUser == null)
+        if(findResult.isEmpty())
             throw new UsernameNotFoundException(username);
 
+        User findUser = findResult.get();
         return new org.springframework.security.core.userdetails.User(findUser.getUserRealId(), findUser.getUserPassword(), true,true,true,true,new ArrayList<>());
     }
 }

@@ -1,26 +1,14 @@
 package segment.Repository;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 import segment.Entity.User;
 
-import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
-@Repository
-@RequiredArgsConstructor
-public class UserRepository {
-    private final EntityManager em;
+public interface UserRepository {
+    public User save(User user);
 
-    public void save(User user){
-        em.persist(user);
-    }
+    public Optional<User> findOne(String userId);
 
-    public User findOne(String userId){
-        return em.find(User.class, userId);
-    }
-
-    public List<User> findAll(){
-        return em.createQuery("Select user from User user").getResultList();
-    }
+    public List<User> findAll();
 }
