@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: SegmentRe
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: always
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: "jdbc:h2:file:./database/segmentre.db;MODE=MYSQL;DB_CLOSE_DELAY=-1"
+#    DB_CLOSE_DELAY=-1 : DB연결을 닫아도 VM에서 살아서 Content를 지키도록 함
+    username: sa
+    password:
+    hikari:
+      minimum-idle: 1
+      maximum-pool-size: 5
+      pool-name: H2_DB
+  jpa:
+    database: H2
+    open-in-view: false
+    show-sql: false
+    hibernate:
+      ddl-auto: create
+      use-new-id-generator-mappings: false #기본 설정이 TABLE 전략이라 이를 IDENTITY 전략으로 바꾸기 위함
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl #변수 이름을 그대로 사용함
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  sql:
+    init:
+      platform: h2
+      mode: always
+      data-locations: classpath:sql/data_new.sql
+      encoding: UTF-8
