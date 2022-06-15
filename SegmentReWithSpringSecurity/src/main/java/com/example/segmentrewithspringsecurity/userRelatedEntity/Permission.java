@@ -14,7 +14,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @ToString
 @Entity
-@Table(name = "permissions")
+@Table(name = "PERMISSIONS")
 public class Permission {
     @Id
     @Column(name = "id")

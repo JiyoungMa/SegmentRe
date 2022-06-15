@@ -23,7 +23,7 @@ public class User {
     @NotBlank
     private String loginId;
 
-    @Column(name = "password", length = 30)
+    @Column(name = "password", length = 80)
     @NotBlank
     private String password;
 

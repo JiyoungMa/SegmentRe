@@ -3,12 +3,15 @@ package com.example.segmentrewithspringsecurity.userRelatedEntity;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -26,4 +29,10 @@ public class Group {
 
     @OneToMany(mappedBy = "group")
     private List<GroupPermission> permissions = new ArrayList<>();
+
+    public List<GrantedAuthority> getAuthorities(){
+        return permissions.stream()
+                .map(gp -> new SimpleGrantedAuthority(gp.getPermission().getName()))
+                .collect(Collectors.toList());
+    }
 }
