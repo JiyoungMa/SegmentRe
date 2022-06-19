@@ -1,6 +1,9 @@
 package com.example.segmentrewithspringsecurity.userRelatedEntity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,6 +21,9 @@ import java.util.stream.Collectors;
 @ToString
 @Entity
 @Table(name = "groups")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Group {
     @Id
     @Column(name = "id")

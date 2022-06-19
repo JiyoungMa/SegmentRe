@@ -27,7 +27,7 @@ spring:
     open-in-view: false
     show-sql: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       use-new-id-generator-mappings: false #기본 설정이 TABLE 전략이라 이를 IDENTITY 전략으로 바꾸기 위함
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl #변수 이름을 그대로 사용함

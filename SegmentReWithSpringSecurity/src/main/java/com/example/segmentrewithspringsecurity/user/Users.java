@@ -1,6 +1,7 @@
 package com.example.segmentrewithspringsecurity.user;
 
 import com.example.segmentrewithspringsecurity.userRelatedEntity.Group;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @ToString
 @Entity
 @Table(name = "users")
-public class User {
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -32,5 +33,15 @@ public class User {
     @NotNull
     private Group group;
 
+    public Users() {
+    }
 
+    @Builder
+    public Users(Long id, String loginId, String password,
+        Group group) {
+        this.id = id;
+        this.loginId = loginId;
+        this.password = password;
+        this.group = group;
+    }
 }

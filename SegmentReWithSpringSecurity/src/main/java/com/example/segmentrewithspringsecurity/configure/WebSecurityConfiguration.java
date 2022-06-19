@@ -73,6 +73,7 @@ public class WebSecurityConfiguration {
                 .authorizeRequests()
                 .anyRequest().permitAll()
             .and()
+            .csrf().disable()
                 .formLogin()
                 .defaultSuccessUrl("/")
                 .permitAll()
